@@ -1,4 +1,4 @@
-package com.k8s.poc.product;
+package com.k8s.poc.product.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

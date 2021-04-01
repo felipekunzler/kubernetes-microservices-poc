@@ -1,5 +1,6 @@
 package com.k8s.poc.product;
 
+import com.k8s.poc.product.model.Product;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
