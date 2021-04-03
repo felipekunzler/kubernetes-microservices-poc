@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	initialize()
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())
