@@ -11,7 +11,9 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	e.GET("/", listCarts)
+	e.GET("/cart/:id", listCart)
+	e.GET("/entry", postEntry)
+	//e.DELETE("/entry", deleteEntry)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }
