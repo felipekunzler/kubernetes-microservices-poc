@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
+	"strconv"
 )
 
 type cart struct {
@@ -58,20 +59,81 @@ func postEntry(echoContext echo.Context) error {
 	}
 
 	appendNewEntry(c, input)
-
-	cartJson, _ := json.Marshal(c)
-	redisClient.Set(ctx, c.Id, cartJson, 0)
+	updateInRedis(c)
 
 	return echoContext.JSON(http.StatusOK, c)
 }
 
-func findEntry(c *cart, id int) *entry {
+func updateInRedis(c *cart) {
+	cartJson, _ := json.Marshal(c)
+	redisClient.Set(ctx, c.Id, cartJson, 0)
+}
+
+func patchEntry(echoContext echo.Context) error  {
+	cartId := echoContext.Param("cartId")
+	entryId := echoContext.Param("entryId")
+	entryIdInt, _ := strconv.Atoi(entryId)
+
+	input := &entry{}
+	if err := echoContext.Bind(input); err != nil && input == nil {
+		return err
+	}
+	result, err := redisClient.Get(ctx, cartId).Result()
+	if err != nil {
+		return err
+	}
+
+	var c *cart
+	err = json.Unmarshal([]byte(result), &c)
+	if err != nil {
+		return err
+	}
+
+	updateEntry(c, input, entryIdInt)
+	updateInRedis(c)
+
+	return echoContext.JSON(http.StatusOK, c)
+}
+
+func deleteEntry(echoContext echo.Context) error {
+	cartId := echoContext.Param("cartId")
+	entryId := echoContext.Param("entryId")
+	entryIdInt, _ := strconv.Atoi(entryId)
+
+	result, err := redisClient.Get(ctx, cartId).Result()
+	if err != nil {
+		return err
+	}
+
+	var c *cart
+	err = json.Unmarshal([]byte(result), &c)
+	if err != nil {
+		return err
+	}
+
+	deleteEntryById(c, entryIdInt)
+	updateInRedis(c)
+
+	return echoContext.JSON(http.StatusOK, c)
+}
+
+func deleteEntryById(c *cart, id int) {
+	_, i := findEntry(c, id)
+	c.Entries = append(c.Entries[:i], c.Entries[i+1:]...)
+}
+
+func updateEntry(c *cart, input *entry, id int) {
+	e, _ := findEntry(c, id)
+	e.Quantity = input.Quantity
+}
+
+func findEntry(c *cart, id int) (*entry, int) {
 	for i := range c.Entries {
 		if c.Entries[i].Id == id {
-			return &c.Entries[i]
+			return &c.Entries[i], i
 		}
 	}
-	return nil
+	return nil, -1
 }
 
 func appendNewEntry(c *cart, input *entry) {

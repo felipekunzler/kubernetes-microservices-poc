@@ -16,8 +16,8 @@ func main() {
 	e.GET("/cart/:id", listCart)
 	e.POST("/cart", createCart)
 	e.POST("/cart/:id/entry", postEntry)
-	//e.PATCH("/cart/:id/entry", patchEntry)
-	//e.DELETE("/cart/:cartId/entry/:entryId", deleteEntry)
+	e.PATCH("/cart/:cartId/entry/:entryId", patchEntry)
+	e.DELETE("/cart/:cartId/entry/:entryId", deleteEntry)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

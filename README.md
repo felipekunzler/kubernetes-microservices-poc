@@ -6,4 +6,7 @@
     * Proper error msg on 404
     * Postegres on Docker/k8s
     
-
+* Cart
+  * Correct HTTP response codes
+  * Refactor
+  * Handle all errors
