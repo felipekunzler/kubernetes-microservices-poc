@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	initialize()
+	initializeRedis()
 
 	e := echo.New()
 
@@ -14,8 +14,10 @@ func main() {
 	e.Use(middleware.Recover())
 
 	e.GET("/cart/:id", listCart)
-	e.GET("/entry", postEntry)
-	//e.DELETE("/entry", deleteEntry)
+	e.POST("/cart", createCart)
+	e.POST("/cart/:id/entry", postEntry)
+	//e.PATCH("/cart/:id/entry", patchEntry)
+	//e.DELETE("/cart/:cartId/entry/:entryId", deleteEntry)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

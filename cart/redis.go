@@ -8,7 +8,7 @@ import (
 var redisClient *redis.Client
 var ctx = context.Background()
 
-func initialize() {
+func initializeRedis() {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "",
