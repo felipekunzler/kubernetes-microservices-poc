@@ -5,13 +5,18 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-var redisClient *redis.Client
-var ctx = context.Background()
+type redisStore struct {
+	client  *redis.Client
+	context context.Context
+}
 
-func initializeRedis() {
-	redisClient = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
+func NewRedisStore() *redisStore {
+	r := &redisStore{}
+	r.context = context.Background()
+	r.client = redis.NewClient(&redis.Options{
+		Addr:     "localhost:6379", // TODO: Get by env variable
 		Password: "",
 		DB:       0,
 	})
+	return r
 }

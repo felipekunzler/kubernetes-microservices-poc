@@ -8,6 +8,10 @@ import (
 	"strconv"
 )
 
+type handler struct {
+	rs *redisStore
+}
+
 type cart struct {
 	Id      string  `json:"id"`
 	Total   float32 `json:"total"`
@@ -15,39 +19,42 @@ type cart struct {
 }
 
 type entry struct {
-	Id        int `json:"id"`
+	Id        int    `json:"id"`
 	ProductId string `json:"productId"`
 	Quantity  int    `json:"quantity"`
 }
 
-func createCart(echoContext echo.Context) error {
+// Creates an empty cart.
+func (h *handler) createCart(echoContext echo.Context) error {
 	c := new(cart)
 	c.Id = uuid.New().String()
 	cartJson, _ := json.Marshal(c)
-	err := redisClient.Set(ctx, c.Id, cartJson, 0).Err()
+	err := h.rs.client.Set(h.rs.context, c.Id, cartJson, 0).Err()
 	if err != nil {
 		return err
 	}
 	return echoContext.JSON(http.StatusOK, c)
 }
 
-func listCart(c echo.Context) error {
+// Lists a cart by an id.
+func (h *handler) listCart(c echo.Context) error {
 	id := c.Param("id")
-	result, err := redisClient.Get(ctx, id).Result()
+	result, err := h.rs.client.Get(h.rs.context, id).Result()
 	if err != nil {
 		return err
 	}
 	return c.Blob(http.StatusOK, echo.MIMEApplicationJSONCharsetUTF8, []byte(result))
 }
 
-func postEntry(echoContext echo.Context) error {
+// Creates a new entry to a given cart.
+func (h *handler) postEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("id")
 
 	input := &entry{}
 	if err := echoContext.Bind(input); err != nil && input == nil {
 		return err
 	}
-	result, err := redisClient.Get(ctx, cartId).Result()
+	result, err := h.rs.client.Get(h.rs.context, cartId).Result()
 	if err != nil {
 		return err
 	}
@@ -59,17 +66,18 @@ func postEntry(echoContext echo.Context) error {
 	}
 
 	appendNewEntry(c, input)
-	updateInRedis(c)
+	h.updateInRedis(c)
 
 	return echoContext.JSON(http.StatusOK, c)
 }
 
-func updateInRedis(c *cart) {
+func (h *handler) updateInRedis(c *cart) {
 	cartJson, _ := json.Marshal(c)
-	redisClient.Set(ctx, c.Id, cartJson, 0)
+	h.rs.client.Set(h.rs.context, c.Id, cartJson, 0)
 }
 
-func patchEntry(echoContext echo.Context) error  {
+// Updates an existing entry. Mostly used for changing the product quantity.
+func (h *handler) patchEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("cartId")
 	entryId := echoContext.Param("entryId")
 	entryIdInt, _ := strconv.Atoi(entryId)
@@ -78,7 +86,7 @@ func patchEntry(echoContext echo.Context) error  {
 	if err := echoContext.Bind(input); err != nil && input == nil {
 		return err
 	}
-	result, err := redisClient.Get(ctx, cartId).Result()
+	result, err := h.rs.client.Get(h.rs.context, cartId).Result()
 	if err != nil {
 		return err
 	}
@@ -90,17 +98,18 @@ func patchEntry(echoContext echo.Context) error  {
 	}
 
 	updateEntry(c, input, entryIdInt)
-	updateInRedis(c)
+	h.updateInRedis(c)
 
 	return echoContext.JSON(http.StatusOK, c)
 }
 
-func deleteEntry(echoContext echo.Context) error {
+// Deletes an entry by id.
+func (h *handler) deleteEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("cartId")
 	entryId := echoContext.Param("entryId")
 	entryIdInt, _ := strconv.Atoi(entryId)
 
-	result, err := redisClient.Get(ctx, cartId).Result()
+	result, err := h.rs.client.Get(h.rs.context, cartId).Result()
 	if err != nil {
 		return err
 	}
@@ -112,7 +121,7 @@ func deleteEntry(echoContext echo.Context) error {
 	}
 
 	deleteEntryById(c, entryIdInt)
-	updateInRedis(c)
+	h.updateInRedis(c)
 
 	return echoContext.JSON(http.StatusOK, c)
 }
@@ -145,7 +154,7 @@ func appendNewEntry(c *cart, input *entry) {
 	}
 
 	c.Entries = append(c.Entries, entry{
-		Id: maxId + 1,
+		Id:        maxId + 1,
 		ProductId: input.ProductId,
 		Quantity:  input.Quantity,
 	})
