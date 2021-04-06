@@ -6,20 +6,22 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
 
 type cart struct {
 	Id      string  `json:"id"`
-	Total   float32 `json:"total"`
+	Total   float64 `json:"total"`
 	Entries []entry `json:"entries"`
 }
 
 type entry struct {
-	Id        int    `json:"id"`
-	ProductId string `json:"productId"`
-	Quantity  int    `json:"quantity"`
+	Id        int     `json:"id"`
+	ProductId string  `json:"productId"`
+	Quantity  int     `json:"quantity"`
+	BasePrice float64 `json:"productPrice"`
 }
 
 type handler struct {
@@ -33,7 +35,7 @@ func (h *handler) listCart(c echo.Context) error {
 
 	result, err := h.redis.client.Get(h.redis.context, id).Result()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found.", id))
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found", id))
 	}
 
 	return c.Blob(http.StatusOK, echo.MIMEApplicationJSONCharsetUTF8, []byte(result))
@@ -63,14 +65,9 @@ func (h *handler) createCart(echoContext echo.Context) error {
 func (h *handler) postEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("id")
 
-	input := &entry{}
-	if err := echoContext.Bind(input); err != nil {
-		return err
-	}
-
 	result, err := h.redis.client.Get(h.redis.context, cartId).Result()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found.", cartId))
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found", cartId))
 	}
 
 	var c *cart
@@ -79,12 +76,51 @@ func (h *handler) postEntry(echoContext echo.Context) error {
 		return err
 	}
 
-	appendNewEntryToCart(c, input)
+	input := &entry{}
+	if err := echoContext.Bind(input); err != nil {
+		return err
+	}
+
+	input.BasePrice, err = fetchLatestProductPrice(input.ProductId)
+	if err != nil {
+		return err
+	}
+
+	if err = appendNewEntryToCart(c, input); err != nil {
+		return err
+	}
 	if err = h.updateInRedis(c); err != nil {
 		return err
 	}
 
 	return echoContext.JSON(http.StatusCreated, c)
+}
+
+// Fetch latest price from the product service
+func fetchLatestProductPrice(id string) (float64, error) {
+	url := "http://localhost:8080/api/product/" + id // TODO: use env variable
+	resp, err := http.Get(url)
+	if err != nil {
+		return -1, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return -1, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Product with id [%v] not found", id))
+	}
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return -1, err
+	}
+
+	var product map[string]interface{}
+	if err = json.Unmarshal(bytes, &product); err != nil {
+		return -1, err
+	}
+
+	price := product["price"].(float64)
+	return price, nil
 }
 
 func (h *handler) updateInRedis(c *cart) error {
@@ -111,7 +147,7 @@ func (h *handler) patchEntry(echoContext echo.Context) error {
 	}
 	result, err := h.redis.client.Get(h.redis.context, cartId).Result()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found.", cartId))
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found", cartId))
 	}
 
 	var c *cart
@@ -164,17 +200,17 @@ func (h *handler) deleteEntry(echoContext echo.Context) error {
 }
 
 func deleteEntryById(c *cart, id int) error {
-	e, err := findEntry(c, id)
+	i, _, err := findEntry(c, id)
 	if err != nil {
 		return err
 	}
 
-	c.Entries = append(c.Entries[:e.Id], c.Entries[e.Id+1:]...)
+	c.Entries = append(c.Entries[:i], c.Entries[i+1:]...)
 	return nil
 }
 
 func updateEntry(c *cart, input *entry, id int) error {
-	e, err := findEntry(c, id)
+	_, e, err := findEntry(c, id)
 	if err != nil {
 		return err
 	}
@@ -183,20 +219,24 @@ func updateEntry(c *cart, input *entry, id int) error {
 	return nil
 }
 
-func findEntry(c *cart, id int) (*entry, error) {
+func findEntry(c *cart, id int) (int, *entry, error) {
 	for i := range c.Entries {
 		if c.Entries[i].Id == id {
-			return &c.Entries[i], nil
+			return i, &c.Entries[i], nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("Entry with id [%v] not found.", id))
+	return -1, nil, errors.New(fmt.Sprintf("Entry with id [%v] not found", id))
 }
 
-func appendNewEntryToCart(c *cart, input *entry) {
+func appendNewEntryToCart(c *cart, input *entry) error {
 	var maxId int
 	for _, e := range c.Entries {
 		if e.Id > maxId {
 			maxId = e.Id
+		}
+		if e.ProductId == input.ProductId {
+			return echo.NewHTTPError(http.StatusBadRequest,
+				fmt.Sprintf("Product with code [%v] already in entry with id [%v]", e.ProductId, e.Id))
 		}
 	}
 
@@ -204,5 +244,7 @@ func appendNewEntryToCart(c *cart, input *entry) {
 		Id:        maxId + 1,
 		ProductId: input.ProductId,
 		Quantity:  input.Quantity,
+		BasePrice: input.BasePrice,
 	})
+	return nil
 }
