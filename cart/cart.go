@@ -2,15 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
 )
-
-type handler struct {
-	rs *redisStore
-}
 
 type cart struct {
 	Id      string  `json:"id"`
@@ -24,39 +22,55 @@ type entry struct {
 	Quantity  int    `json:"quantity"`
 }
 
-// Creates an empty cart.
-func (h *handler) createCart(echoContext echo.Context) error {
-	c := new(cart)
-	c.Id = uuid.New().String()
-	cartJson, _ := json.Marshal(c)
-	err := h.rs.client.Set(h.rs.context, c.Id, cartJson, 0).Err()
-	if err != nil {
-		return err
-	}
-	return echoContext.JSON(http.StatusOK, c)
+type handler struct {
+	redis *redisStore
 }
 
 // Lists a cart by an id.
+// GET /cart/:id
 func (h *handler) listCart(c echo.Context) error {
 	id := c.Param("id")
-	result, err := h.rs.client.Get(h.rs.context, id).Result()
+
+	result, err := h.redis.client.Get(h.redis.context, id).Result()
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found.", id))
 	}
+
 	return c.Blob(http.StatusOK, echo.MIMEApplicationJSONCharsetUTF8, []byte(result))
 }
 
+// Creates an empty cart.
+// POST /cart
+func (h *handler) createCart(echoContext echo.Context) error {
+	c := new(cart)
+	c.Id = uuid.New().String()
+
+	cartJson, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	err = h.redis.client.Set(h.redis.context, c.Id, cartJson, 0).Err()
+	if err != nil {
+		return err
+	}
+
+	return echoContext.JSON(http.StatusCreated, c)
+}
+
 // Creates a new entry to a given cart.
+// POST /cart/:id/entry
 func (h *handler) postEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("id")
 
 	input := &entry{}
-	if err := echoContext.Bind(input); err != nil && input == nil {
+	if err := echoContext.Bind(input); err != nil {
 		return err
 	}
-	result, err := h.rs.client.Get(h.rs.context, cartId).Result()
+
+	result, err := h.redis.client.Get(h.redis.context, cartId).Result()
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found.", cartId))
 	}
 
 	var c *cart
@@ -65,30 +79,39 @@ func (h *handler) postEntry(echoContext echo.Context) error {
 		return err
 	}
 
-	appendNewEntry(c, input)
-	h.updateInRedis(c)
+	appendNewEntryToCart(c, input)
+	if err = h.updateInRedis(c); err != nil {
+		return err
+	}
 
-	return echoContext.JSON(http.StatusOK, c)
+	return echoContext.JSON(http.StatusCreated, c)
 }
 
-func (h *handler) updateInRedis(c *cart) {
-	cartJson, _ := json.Marshal(c)
-	h.rs.client.Set(h.rs.context, c.Id, cartJson, 0)
+func (h *handler) updateInRedis(c *cart) error {
+	cartJson, err := json.Marshal(c)
+	if err != nil {
+		return err
+	}
+	return h.redis.client.Set(h.redis.context, c.Id, cartJson, 0).Err()
 }
 
 // Updates an existing entry. Mostly used for changing the product quantity.
+// PATCH /cart/:cartId/entry/:entryId
 func (h *handler) patchEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("cartId")
 	entryId := echoContext.Param("entryId")
-	entryIdInt, _ := strconv.Atoi(entryId)
+	entryIdInt, err := strconv.Atoi(entryId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Parameter entry id should be an integer")
+	}
 
 	input := &entry{}
-	if err := echoContext.Bind(input); err != nil && input == nil {
+	if err := echoContext.Bind(input); err != nil {
 		return err
 	}
-	result, err := h.rs.client.Get(h.rs.context, cartId).Result()
+	result, err := h.redis.client.Get(h.redis.context, cartId).Result()
 	if err != nil {
-		return err
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found.", cartId))
 	}
 
 	var c *cart
@@ -97,19 +120,28 @@ func (h *handler) patchEntry(echoContext echo.Context) error {
 		return err
 	}
 
-	updateEntry(c, input, entryIdInt)
-	h.updateInRedis(c)
+	if err := updateEntry(c, input, entryIdInt); err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if err = h.updateInRedis(c); err != nil {
+		return err
+	}
 
 	return echoContext.JSON(http.StatusOK, c)
 }
 
 // Deletes an entry by id.
+// DELETE /cart/:cartId/entry/:entryId
 func (h *handler) deleteEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("cartId")
 	entryId := echoContext.Param("entryId")
-	entryIdInt, _ := strconv.Atoi(entryId)
+	entryIdInt, err := strconv.Atoi(entryId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Parameter entry id should be an integer")
+	}
 
-	result, err := h.rs.client.Get(h.rs.context, cartId).Result()
+	result, err := h.redis.client.Get(h.redis.context, cartId).Result()
 	if err != nil {
 		return err
 	}
@@ -120,32 +152,47 @@ func (h *handler) deleteEntry(echoContext echo.Context) error {
 		return err
 	}
 
-	deleteEntryById(c, entryIdInt)
-	h.updateInRedis(c)
+	if err := deleteEntryById(c, entryIdInt); err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, err.Error())
+	}
+
+	if err = h.updateInRedis(c); err != nil {
+		return err
+	}
 
 	return echoContext.JSON(http.StatusOK, c)
 }
 
-func deleteEntryById(c *cart, id int) {
-	_, i := findEntry(c, id)
-	c.Entries = append(c.Entries[:i], c.Entries[i+1:]...)
+func deleteEntryById(c *cart, id int) error {
+	e, err := findEntry(c, id)
+	if err != nil {
+		return err
+	}
+
+	c.Entries = append(c.Entries[:e.Id], c.Entries[e.Id+1:]...)
+	return nil
 }
 
-func updateEntry(c *cart, input *entry, id int) {
-	e, _ := findEntry(c, id)
+func updateEntry(c *cart, input *entry, id int) error {
+	e, err := findEntry(c, id)
+	if err != nil {
+		return err
+	}
+
 	e.Quantity = input.Quantity
+	return nil
 }
 
-func findEntry(c *cart, id int) (*entry, int) {
+func findEntry(c *cart, id int) (*entry, error) {
 	for i := range c.Entries {
 		if c.Entries[i].Id == id {
-			return &c.Entries[i], i
+			return &c.Entries[i], nil
 		}
 	}
-	return nil, -1
+	return nil, errors.New(fmt.Sprintf("Entry with id [%v] not found.", id))
 }
 
-func appendNewEntry(c *cart, input *entry) {
+func appendNewEntryToCart(c *cart, input *entry) {
 	var maxId int
 	for _, e := range c.Entries {
 		if e.Id > maxId {

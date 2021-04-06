@@ -12,7 +12,7 @@ func main() {
 	e.Use(middleware.Recover())
 
 	r := NewRedisStore()
-	h := handler{rs: r}
+	h := handler{redis: r}
 
 	e.GET("/cart/:id", h.listCart)
 	e.POST("/cart", h.createCart)
