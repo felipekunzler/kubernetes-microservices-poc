@@ -131,6 +131,27 @@ func (h *handler) updateInRedis(c *cart) error {
 	return h.redis.client.Set(h.redis.context, c.Id, cartJson, 0).Err()
 }
 
+// Places the order by sending a message to RabbitMQ which will be
+// consumed by the Order Service.
+// POST /cart/:id/placeOrder
+func (h *handler) placeOrder(echoContext echo.Context) error {
+	id := echoContext.Param("id")
+	result, err := h.redis.client.Get(h.redis.context, id).Result()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("Cart with id [%v] not found", id))
+	}
+
+	var c *cart
+	err = json.Unmarshal([]byte(result), &c)
+	if err != nil {
+		return err
+	}
+
+	// TODO: Send message to RabbitMQ
+
+	return echoContext.JSON(http.StatusOK, c)
+}
+
 // Updates an existing entry. Mostly used for changing the product quantity.
 // PATCH /cart/:cartId/entry/:entryId
 func (h *handler) patchEntry(echoContext echo.Context) error {

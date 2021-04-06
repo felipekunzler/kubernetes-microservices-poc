@@ -16,6 +16,7 @@ func main() {
 
 	e.GET("/cart/:id", h.listCart)
 	e.POST("/cart", h.createCart)
+	e.POST("/cart/:id/placeOrder", h.placeOrder)
 	e.POST("/cart/:id/entry", h.postEntry)
 	e.PATCH("/cart/:cartId/entry/:entryId", h.patchEntry)
 	e.DELETE("/cart/:cartId/entry/:entryId", h.deleteEntry)
