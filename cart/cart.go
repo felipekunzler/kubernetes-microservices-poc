@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/streadway/amqp"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -98,7 +99,7 @@ func (h *handler) postEntry(echoContext echo.Context) error {
 
 // Fetch latest price from the product service
 func fetchLatestProductPrice(id string) (float64, error) {
-	url := "http://localhost:8080/api/product/" + id // TODO: use env variable
+	url := productServiceUrl + "/api/product/" + id
 	resp, err := http.Get(url)
 	if err != nil {
 		return -1, err
@@ -147,7 +148,28 @@ func (h *handler) placeOrder(echoContext echo.Context) error {
 		return err
 	}
 
-	// TODO: Send message to RabbitMQ
+	conn, err := amqp.Dial(rabbitmqUrl)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	ch, err := conn.Channel()
+	if err != nil {
+		return err
+	}
+	defer ch.Close()
+
+	q, err := ch.QueueDeclare("placeOrder", false, false, false, false, nil)
+	if err != nil {
+		return err
+	}
+
+	err = ch.Publish("", q.Name, false, false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(result),
+		})
 
 	return echoContext.JSON(http.StatusOK, c)
 }

@@ -14,7 +14,7 @@ func NewRedisStore() *redisStore {
 	r := &redisStore{}
 	r.context = context.Background()
 	r.client = redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379", // TODO: Get by env variable
+		Addr:     redisUrl,
 		Password: "",
 		DB:       0,
 	})
