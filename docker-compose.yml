@@ -1,0 +1,27 @@
+services:
+  product:
+    build: ./product
+    image: k8s-poc_product
+    ports:
+      - "8080:8080"
+
+  cart:
+    build: ./cart
+    image: k8s-poc_cart
+    ports:
+      - "1323:1323"
+    environment:
+      - REDIS_URL=redis:6379
+      - PRODUCT_SERVICE_URL=http://product:8080
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672" # management ui
+      - "5672:5672" # server

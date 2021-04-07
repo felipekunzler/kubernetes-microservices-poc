@@ -7,6 +7,12 @@
 * [Cart service](./cart/) written in Go and Redis
 * [Product service](./product/) written in Java 11, Spring Boot and PostgreSQL
 
+## Running locally with Docker
+* Run all services locally in Docker with `docker-compose up --build`
+
+## Running locally with Kubernetes
+* Coming soon
+
 ## Todo
 * Products
     * Generate API schema on build

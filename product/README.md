@@ -1,6 +1,6 @@
 ## Product Service
 * Requires Java 11
-* Run with `./gradlew bootRun`
+* Run locally with `./gradlew bootRun`
 
 ### Endpoints
 * http://localhost:8080/api/product
