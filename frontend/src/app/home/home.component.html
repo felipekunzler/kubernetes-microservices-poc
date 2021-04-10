@@ -1,1 +1,11 @@
 <p>home works!</p>
+<a routerLink='cart'>Cart page</a>
+<ul>
+  <li
+    *ngFor='let product of (products | async)'>
+    <a routerLink='cart'>{{product.name}}</a>
+    {{product.description}}
+    {{product.image}}
+    {{product.price}}
+  </li>
+</ul>

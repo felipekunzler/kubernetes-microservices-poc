@@ -8,6 +8,11 @@ import { FooterComponent } from './footer/footer.component';
 import { HomeComponent } from './home/home.component';
 import { CartComponent } from './cart/cart.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { HttpClientModule } from '@angular/common/http';
+import { ProductPageComponent } from './product-page/product-page.component';
+import { ProductComponent } from './product/product.component';
+import { ProductDetailsComponent } from './product-details/product-details.component';
+import { ProductPreviewComponent } from './product-preview/product-preview.component';
 
 @NgModule({
   declarations: [
@@ -16,13 +21,19 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
     FooterComponent,
     HomeComponent,
     CartComponent,
-    PageNotFoundComponent
+    PageNotFoundComponent,
+    ProductPageComponent,
+    ProductComponent,
+    ProductDetailsComponent,
+    ProductPreviewComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule
+    AppRoutingModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
