@@ -21,7 +21,7 @@ import { ProductPreviewComponent } from './product-preview/product-preview.compo
     CartComponent,
     PageNotFoundComponent,
     ProductDetailsComponent,
-    ProductPreviewComponent
+    ProductPreviewComponent,
   ],
   imports: [
     BrowserModule,

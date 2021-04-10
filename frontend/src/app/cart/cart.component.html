@@ -1,1 +1,14 @@
 <p>cart works!</p>
+<div *ngIf='cart$ | async; let cart'>
+  {{cart.id}}
+  {{cart.total}}
+  <ul>
+    <li *ngFor='let entry of cart.entries'>
+      <a routerLink='product/{{entry.productId}}'>{{entry.productId}}</a>
+      {{entry.id}}
+      {{entry.productPrice}}
+      {{entry.quantity}}
+    </li>
+  </ul>
+
+</div>

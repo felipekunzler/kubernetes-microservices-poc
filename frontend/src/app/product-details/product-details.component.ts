@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { Product } from '../core/models/product';
 import { ProductService } from '../core/services/product.service';
 import { ActivatedRoute } from '@angular/router';
+import { CartService } from '../core/services/cart.service';
 
 @Component({
   selector: 'app-product-details',
@@ -13,7 +14,8 @@ export class ProductDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private productService: ProductService
+    private productService: ProductService,
+    public cartService: CartService
   ) {
   }
 

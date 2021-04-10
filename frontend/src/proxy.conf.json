@@ -1,7 +1,15 @@
 {
-  "/api/*": {
+  "/api/product/*": {
     "target": "http://localhost:8080",
     "secure": false,
     "logLevel": "debug"
+  },
+  "/api/cart/*": {
+    "target": "http://localhost:1323",
+    "secure": false,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api": ""
+    }
   }
 }
