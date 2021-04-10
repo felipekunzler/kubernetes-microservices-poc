@@ -15,10 +15,10 @@ export class HomeComponent implements OnInit {
   ) {
   }
 
-  products!: Observable<Product[]>;
+  products$!: Observable<Product[]>;
 
   ngOnInit(): void {
-    this.products = this.productService.getProducts();
+    this.products$ = this.productService.getProducts();
   }
 
 }

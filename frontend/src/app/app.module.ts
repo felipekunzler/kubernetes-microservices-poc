@@ -9,8 +9,6 @@ import { HomeComponent } from './home/home.component';
 import { CartComponent } from './cart/cart.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { HttpClientModule } from '@angular/common/http';
-import { ProductPageComponent } from './product-page/product-page.component';
-import { ProductComponent } from './product/product.component';
 import { ProductDetailsComponent } from './product-details/product-details.component';
 import { ProductPreviewComponent } from './product-preview/product-preview.component';
 
@@ -22,8 +20,6 @@ import { ProductPreviewComponent } from './product-preview/product-preview.compo
     HomeComponent,
     CartComponent,
     PageNotFoundComponent,
-    ProductPageComponent,
-    ProductComponent,
     ProductDetailsComponent,
     ProductPreviewComponent
   ],
