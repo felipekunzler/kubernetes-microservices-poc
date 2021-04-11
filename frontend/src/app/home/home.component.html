@@ -1,5 +1,6 @@
 <p>home works!</p>
-<a routerLink='cart'>Cart page</a>
+<p><a routerLink='cart'>Cart page</a></p>
+<p><button (click)='clearCart()'>Clear cart</button></p>
 <ul>
   <li *ngFor='let product of (products$ | async)'>
     <a routerLink='product/{{product.id}}'>{{product.id}}</a>

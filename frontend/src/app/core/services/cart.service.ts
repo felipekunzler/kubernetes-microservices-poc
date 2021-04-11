@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { Cart } from '../models/cart';
 import { HttpClient } from '@angular/common/http';
 import { Entry } from '../models/entry';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,8 @@ import { Entry } from '../models/entry';
 export class CartService {
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) {
   }
 
@@ -22,6 +24,11 @@ export class CartService {
     return this.http.post<Cart>('http://localhost:4200/api/cart', null, {});
   }
 
+  deleteEntry(id?: number): Observable<any> {
+    const cartId = localStorage.getItem('cartId');
+    return this.http.delete('http://localhost:4200/api/cart/' + cartId + '/entry/' + id);
+  }
+
   addToCart(pId: string): void {
     const newEntry: Entry = {
       productId: pId,
@@ -30,6 +37,14 @@ export class CartService {
     const cartId = localStorage.getItem('cartId');
     this.http.post('http://localhost:4200/api/cart/' + cartId + '/entry', newEntry, {})
       .subscribe();
+  }
+
+  placeOrder(): void {
+    const cartId = localStorage.getItem('cartId');
+    this.http.post('http://localhost:4200/api/cart/' + cartId + '/placeOrder', null, {})
+      .subscribe();
+    localStorage.removeItem('cartId');
+    this.router.navigate(['']);
   }
 
 }

@@ -12,7 +12,7 @@ import { tap } from 'rxjs/operators';
 export class CartComponent implements OnInit {
 
   constructor(
-    private cartService: CartService
+    public cartService: CartService
   ) {
   }
 
@@ -29,6 +29,15 @@ export class CartComponent implements OnInit {
           c => localStorage.setItem('cartId', c.id)
         ));
     }
+  }
+
+  deleteEntry(id?: number): void {
+    this.cartService.deleteEntry(id).subscribe(() => {
+      const cartId = localStorage.getItem('cartId');
+      if (cartId) {
+        this.cart$ = this.cartService.getCart(cartId);
+      }
+    });
   }
 
 }

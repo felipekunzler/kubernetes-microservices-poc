@@ -8,7 +8,10 @@
       {{entry.id}}
       {{entry.productPrice}}
       {{entry.quantity}}
+      <button (click)='deleteEntry(entry.id)'>Remove</button>
     </li>
   </ul>
+
+  <button (click)='cartService.placeOrder()'>Place order</button>
 
 </div>

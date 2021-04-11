@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../core/services/product.service';
 import { Product } from '../core/models/product';
 import { Observable } from 'rxjs';
+import { CartService } from '../core/services/cart.service';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +20,10 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.products$ = this.productService.getProducts();
+  }
+
+  clearCart(): void {
+    localStorage.removeItem('cartId');
   }
 
 }
