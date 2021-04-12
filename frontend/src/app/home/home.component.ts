@@ -22,8 +22,4 @@ export class HomeComponent implements OnInit {
     this.products$ = this.productService.getProducts();
   }
 
-  clearCart(): void {
-    localStorage.removeItem('cartId');
-  }
-
 }

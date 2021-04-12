@@ -1,6 +1,7 @@
 <p>product-details works!</p>
 <div *ngIf='product$ | async; let product'>
   {{product.id}}
+  {{product.description}}
   {{product.name}}
   {{product.image}}
   {{product.price}}

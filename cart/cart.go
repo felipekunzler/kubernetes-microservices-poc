@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/streadway/amqp"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"strconv"
 )
@@ -23,6 +24,7 @@ type entry struct {
 	ProductId string  `json:"productId"`
 	Quantity  int     `json:"quantity"`
 	BasePrice float64 `json:"productPrice"`
+	Total     float64 `json:"total"`
 }
 
 type handler struct {
@@ -125,11 +127,26 @@ func fetchLatestProductPrice(id string) (float64, error) {
 }
 
 func (h *handler) updateInRedis(c *cart) error {
+	recalculateCart(c)
 	cartJson, err := json.Marshal(c)
 	if err != nil {
 		return err
 	}
 	return h.redis.client.Set(h.redis.context, c.Id, cartJson, 0).Err()
+}
+
+func recalculateCart(c *cart) {
+	total := float64(0)
+	for i := range c.Entries {
+		e := &c.Entries[i]
+		e.Total = round(e.BasePrice * float64(e.Quantity))
+		total += e.Total
+	}
+	c.Total = round(total)
+}
+
+func round(value float64) float64 {
+	return math.Round(value*100) / 100
 }
 
 // Places the order by sending a message to RabbitMQ which will be

@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Cart } from '../core/models/cart';
-import { CartService } from '../core/services/cart.service';
-import { tap } from 'rxjs/operators';
+import {Component, OnInit} from '@angular/core';
+import {Observable} from 'rxjs';
+import {Cart} from '../core/models/cart';
+import {CartService} from '../core/services/cart.service';
+import {tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-cart',
@@ -38,6 +38,17 @@ export class CartComponent implements OnInit {
         this.cart$ = this.cartService.getCart(cartId);
       }
     });
+  }
+
+  updateQuantity(id?: number, quantity?: number): void {
+    if (quantity && id && quantity >= 1 && quantity <= 99) {
+      this.cartService.updateQuantity(id, quantity).subscribe(() => {
+        const cartId = localStorage.getItem('cartId');
+        if (cartId) {
+          this.cart$ = this.cartService.getCart(cartId);
+        }
+      });
+    }
   }
 
 }

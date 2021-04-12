@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Cart } from '../models/cart';
-import { HttpClient } from '@angular/common/http';
-import { Entry } from '../models/entry';
-import { Router } from '@angular/router';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {Cart} from '../models/cart';
+import {HttpClient} from '@angular/common/http';
+import {Entry} from '../models/entry';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +37,12 @@ export class CartService {
     const cartId = localStorage.getItem('cartId');
     this.http.post('http://localhost:4200/api/cart/' + cartId + '/entry', newEntry, {})
       .subscribe();
+  }
+
+  updateQuantity(id: number, quantity: number): Observable<any> {
+    const entry: Entry = {id, quantity};
+    const cartId = localStorage.getItem('cartId');
+    return this.http.patch('http://localhost:4200/api/cart/' + cartId + '/entry/' + id, entry, {});
   }
 
   placeOrder(): void {

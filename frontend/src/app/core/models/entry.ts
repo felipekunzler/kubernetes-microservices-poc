@@ -1,6 +1,7 @@
 export interface Entry {
   id?: number;
-  productId: string;
+  productId?: string;
   quantity: number;
   productPrice?: number;
+  total?: number;
 }
