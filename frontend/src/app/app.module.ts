@@ -11,6 +11,7 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { HttpClientModule } from '@angular/common/http';
 import { ProductDetailsComponent } from './product-details/product-details.component';
 import { ProductPreviewComponent } from './product-preview/product-preview.component';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { ProductPreviewComponent } from './product-preview/product-preview.compo
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    NgbModule
   ],
   providers: [],
   bootstrap: [AppComponent]
