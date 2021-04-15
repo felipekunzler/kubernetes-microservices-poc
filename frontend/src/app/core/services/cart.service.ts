@@ -1,9 +1,12 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {Cart} from '../models/cart';
 import {HttpClient} from '@angular/common/http';
 import {Entry} from '../models/entry';
 import {Router} from '@angular/router';
+import {map, tap} from 'rxjs/operators';
+import {SessionService} from './session.service';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,21 +15,39 @@ export class CartService {
 
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private sessionService: SessionService
   ) {
   }
 
+  getOrCreateEmptyCart(): Observable<Cart> {
+    const cartId = this.sessionService.getCurrentCartId();
+    if (cartId) {
+      return this.getCart(cartId);
+    }
+    return this.createEmptyCart();
+  }
+
+  getOrCreateCartId(): Observable<string> {
+    const cartId = this.sessionService.getCurrentCartId();
+    if (cartId) {
+      return of(cartId);
+    }
+    return this.createEmptyCart().pipe(map(cart => cart.id));
+  }
+
   getCart(id: string): Observable<Cart> {
-    return this.http.get<Cart>('http://localhost:4200/api/cart/' + id);
+    return this.http.get<Cart>(environment.cartServiceUrl + '/cart/' + id);
   }
 
   createEmptyCart(): Observable<Cart> {
-    return this.http.post<Cart>('http://localhost:4200/api/cart', null, {});
+    return this.http.post<Cart>(environment.cartServiceUrl + '/cart', null, {})
+      .pipe(tap(cart => this.sessionService.setCurrentCartId(cart.id)));
   }
 
   deleteEntry(id?: number): Observable<any> {
-    const cartId = localStorage.getItem('cartId');
-    return this.http.delete('http://localhost:4200/api/cart/' + cartId + '/entry/' + id);
+    const cartId = this.sessionService.getCurrentCartId();
+    return this.http.delete(environment.cartServiceUrl + '/cart/' + cartId + '/entry/' + id);
   }
 
   addToCart(pId: string): void {
@@ -34,22 +55,22 @@ export class CartService {
       productId: pId,
       quantity: 1
     };
-    const cartId = localStorage.getItem('cartId');
-    this.http.post('http://localhost:4200/api/cart/' + cartId + '/entry', newEntry, {})
-      .subscribe();
+    this.getOrCreateCartId().subscribe(cartId => {
+      this.http.post(environment.cartServiceUrl + '/cart/' + cartId + '/entry', newEntry, {}).subscribe();
+    });
   }
 
   updateQuantity(id: number, quantity: number): Observable<any> {
     const entry: Entry = {id, quantity};
-    const cartId = localStorage.getItem('cartId');
-    return this.http.patch('http://localhost:4200/api/cart/' + cartId + '/entry/' + id, entry, {});
+    const cartId = this.sessionService.getCurrentCartId();
+    return this.http.patch(environment.cartServiceUrl + '/cart/' + cartId + '/entry/' + id, entry, {});
   }
 
   placeOrder(): void {
-    const cartId = localStorage.getItem('cartId');
-    this.http.post('http://localhost:4200/api/cart/' + cartId + '/placeOrder', null, {})
+    const cartId = this.sessionService.getCurrentCartId();
+    this.http.post(environment.cartServiceUrl + '/cart/' + cartId + '/placeOrder', null, {})
       .subscribe();
-    localStorage.removeItem('cartId');
+    this.sessionService.removeSessionCart();
     this.router.navigate(['']);
   }
 

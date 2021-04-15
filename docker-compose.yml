@@ -25,3 +25,9 @@ services:
     ports:
       - "15672:15672" # management ui
       - "5672:5672" # server
+
+  frontend:
+    build: ./frontend
+    image: k8s-poc_frontend
+    ports:
+      - "4200:4200"

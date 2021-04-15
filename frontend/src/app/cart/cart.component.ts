@@ -19,34 +19,19 @@ export class CartComponent implements OnInit {
   cart$!: Observable<Cart>;
 
   ngOnInit(): void {
-    const cartId = localStorage.getItem('cartId');
-
-    if (cartId) {
-      this.cart$ = this.cartService.getCart(cartId);
-    } else {
-      this.cart$ = this.cartService.createEmptyCart()
-        .pipe(tap(
-          c => localStorage.setItem('cartId', c.id)
-        ));
-    }
+      this.cart$ = this.cartService.getOrCreateEmptyCart();
   }
 
   deleteEntry(id?: number): void {
     this.cartService.deleteEntry(id).subscribe(() => {
-      const cartId = localStorage.getItem('cartId');
-      if (cartId) {
-        this.cart$ = this.cartService.getCart(cartId);
-      }
+        this.cart$ = this.cartService.getOrCreateEmptyCart();
     });
   }
 
   updateQuantity(id?: number, quantity?: number): void {
     if (quantity && id && quantity >= 1 && quantity <= 99) {
       this.cartService.updateQuantity(id, quantity).subscribe(() => {
-        const cartId = localStorage.getItem('cartId');
-        if (cartId) {
-          this.cart$ = this.cartService.getCart(cartId);
-        }
+        this.cart$ = this.cartService.getOrCreateEmptyCart();
       });
     }
   }
