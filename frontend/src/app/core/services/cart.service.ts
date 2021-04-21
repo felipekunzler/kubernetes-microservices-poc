@@ -52,7 +52,7 @@ export class CartService {
 
   addToCart(pId: string): void {
     const newEntry: Entry = {
-      productId: pId,
+      product: {id: pId},
       quantity: 1
     };
     this.getOrCreateCartId().subscribe(cartId => {

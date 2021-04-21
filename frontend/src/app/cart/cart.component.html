@@ -21,9 +21,9 @@
                     <div>
                       <div class="d-flex justify-content-between">
                         <div>
-                          <h5>{{entry.productId}}</h5>
-                          <p class="text-muted text-uppercase small">Shirt - blue</p>
-                          <p class="text-muted text-uppercase small">Item Price ${{entry.productPrice}}</p>
+                          <h5>{{entry.product?.name}} - {{entry.product?.id}}</h5>
+                          <p class="text-muted text-uppercase small">{{entry.product?.description}}</p>
+                          <p class="text-muted text-uppercase small">Item Price ${{entry.product?.price}}</p>
                         </div>
                         <div>
                           <button (click)="updateQuantity(entry.id, entry.quantity - 1)"

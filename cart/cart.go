@@ -20,11 +20,18 @@ type cart struct {
 }
 
 type entry struct {
-	Id        int     `json:"id"`
-	ProductId string  `json:"productId"`
-	Quantity  int     `json:"quantity"`
-	BasePrice float64 `json:"productPrice"`
-	Total     float64 `json:"total"`
+	Id       int     `json:"id"`
+	Quantity int     `json:"quantity"`
+	Total    float64 `json:"total"`
+	Product  product `json:"product"`
+}
+
+type product struct {
+	Id          string  `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Image       string  `json:"image"`
+	Price       float64 `json:"price"`
 }
 
 type handler struct {
@@ -63,7 +70,7 @@ func (h *handler) createCart(echoContext echo.Context) error {
 	return echoContext.JSON(http.StatusCreated, c)
 }
 
-// Creates a new entry to a given cart.
+// Creates a new entry in a given cart.
 // POST /cart/:id/entry
 func (h *handler) postEntry(echoContext echo.Context) error {
 	cartId := echoContext.Param("id")
@@ -84,10 +91,11 @@ func (h *handler) postEntry(echoContext echo.Context) error {
 		return err
 	}
 
-	input.BasePrice, err = fetchLatestProductPrice(input.ProductId)
+	p, err := fetchProduct(input.Product.Id)
 	if err != nil {
 		return err
 	}
+	input.Product = *p
 
 	if err = appendNewEntryToCart(c, input); err != nil {
 		return err
@@ -99,31 +107,30 @@ func (h *handler) postEntry(echoContext echo.Context) error {
 	return echoContext.JSON(http.StatusCreated, c)
 }
 
-// Fetch latest price from the product service
-func fetchLatestProductPrice(id string) (float64, error) {
+// Fetch product information from the product service
+func fetchProduct(id string) (*product, error) {
 	url := productServiceUrl + "/api/product/" + id
 	resp, err := http.Get(url)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return -1, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Product with id [%v] not found", id))
+		return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Product with id [%v] not found", id))
 	}
 
 	bytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
 
-	var product map[string]interface{}
-	if err = json.Unmarshal(bytes, &product); err != nil {
-		return -1, err
+	var p *product
+	if err = json.Unmarshal(bytes, &p); err != nil {
+		return nil, err
 	}
 
-	price := product["price"].(float64)
-	return price, nil
+	return p, nil
 }
 
 func (h *handler) updateInRedis(c *cart) error {
@@ -139,7 +146,7 @@ func recalculateCart(c *cart) {
 	total := float64(0)
 	for i := range c.Entries {
 		e := &c.Entries[i]
-		e.Total = round(e.BasePrice * float64(e.Quantity))
+		e.Total = round(e.Product.Price * float64(e.Quantity))
 		total += e.Total
 	}
 	c.Total = round(total)
@@ -294,17 +301,16 @@ func appendNewEntryToCart(c *cart, input *entry) error {
 		if e.Id > maxId {
 			maxId = e.Id
 		}
-		if e.ProductId == input.ProductId {
+		if e.Product.Id == input.Product.Id {
 			return echo.NewHTTPError(http.StatusBadRequest,
-				fmt.Sprintf("Product with code [%v] already in entry with id [%v]", e.ProductId, e.Id))
+				fmt.Sprintf("Product with code [%v] already in entry with id [%v]", e.Product.Id, e.Id))
 		}
 	}
 
 	c.Entries = append(c.Entries, entry{
-		Id:        maxId + 1,
-		ProductId: input.ProductId,
-		Quantity:  input.Quantity,
-		BasePrice: input.BasePrice,
+		Id:       maxId + 1,
+		Quantity: input.Quantity,
+		Product:  input.Product,
 	})
 	return nil
 }
