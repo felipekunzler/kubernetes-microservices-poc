@@ -9,23 +9,7 @@
 
   <div class="py-5 bg-light">
     <div class="container">
-
       <div class="row">
-
-        <div class="col-md-4" *ngFor='let product of (products$ | async)'>
-          <a routerLink='product/{{product.id}}'>
-            <div class="card mb-4 box-shadow">
-              <img class="card-img-top"
-                   src="https://cdn.shopify.com/s/files/1/0070/7032/files/camera_56f176e3-ad83-4ff8-82d8-d53d71b6e0fe.jpg?v=1527089512">
-              <div class="card-body">
-                <p class="card-text">{{product.name}}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <small class="text-muted">${{product.price}}</small>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
 
         <div class="col-md-4" *ngFor='let product of (products$ | async)'>
           <a routerLink='product/{{product.id}}'>

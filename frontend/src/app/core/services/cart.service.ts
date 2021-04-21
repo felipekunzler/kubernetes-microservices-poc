@@ -50,13 +50,16 @@ export class CartService {
     return this.http.delete(environment.cartServiceUrl + '/cart/' + cartId + '/entry/' + id);
   }
 
-  addToCart(pId: string): void {
+  addToCart(pId: string, quantity: number): void {
     const newEntry: Entry = {
       product: {id: pId},
-      quantity: 1
+      quantity
     };
     this.getOrCreateCartId().subscribe(cartId => {
-      this.http.post(environment.cartServiceUrl + '/cart/' + cartId + '/entry', newEntry, {}).subscribe();
+      this.http.post(environment.cartServiceUrl + '/cart/' + cartId + '/entry', newEntry, {})
+        .subscribe(
+          () => this.router.navigate(['/cart']),
+          () => this.router.navigate(['/cart']));
     });
   }
 

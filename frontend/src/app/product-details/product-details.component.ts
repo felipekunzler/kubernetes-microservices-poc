@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Product } from '../core/models/product';
-import { ProductService } from '../core/services/product.service';
-import { ActivatedRoute } from '@angular/router';
-import { CartService } from '../core/services/cart.service';
+import {Component, OnInit} from '@angular/core';
+import {Observable} from 'rxjs';
+import {Product} from '../core/models/product';
+import {ProductService} from '../core/services/product.service';
+import {ActivatedRoute} from '@angular/router';
+import {CartService} from '../core/services/cart.service';
 
 @Component({
   selector: 'app-product-details',
@@ -19,11 +19,18 @@ export class ProductDetailsComponent implements OnInit {
   ) {
   }
 
+  quantity = 1;
   product$!: Observable<Product>;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id') || '';
     this.product$ = this.productService.getProduct(id);
+  }
+
+  updateQuantity(updatedQuantity: number): void {
+    if (updatedQuantity > 0 && updatedQuantity < 99) {
+      this.quantity = updatedQuantity;
+    }
   }
 
 }

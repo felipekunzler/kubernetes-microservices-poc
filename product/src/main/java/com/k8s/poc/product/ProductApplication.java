@@ -13,6 +13,8 @@ public class ProductApplication implements CommandLineRunner {
     @Resource
     private ProductRepository productRepository;
 
+    private static final String MOCK_DESCRIPTION = "Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam, sapiente illo. Sit error voluptas repellat rerum quidem, soluta enim perferendis voluptates laboriosam. Distinctio, officia quis dolore quos sapiente tempore alias.";
+
     public static void main(String[] args) {
         SpringApplication.run(ProductApplication.class, args);
     }
@@ -20,11 +22,11 @@ public class ProductApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Mock data
-        Product product1 = new Product("3312", "Phone", "Phone description", "https://google.com", 15.23);
-        productRepository.save(product1);
-
-        Product product2 = new Product("4423", "Laptop", "Laptop description", "https://google.com", 177.23);
-        productRepository.save(product2);
+        productRepository.save(new Product("1001", "Phone", MOCK_DESCRIPTION, "https://google.com", 15.23));
+        productRepository.save(new Product("1002", "Laptop", MOCK_DESCRIPTION, "https://google.com", 177.23));
+        productRepository.save(new Product("1003", "Monitor", MOCK_DESCRIPTION, "https://google.com", 53.44));
+        productRepository.save(new Product("1004", "Keyboard", MOCK_DESCRIPTION, "https://google.com", 80.31));
+        productRepository.save(new Product("1005", "Mouse", MOCK_DESCRIPTION, "https://google.com", 40.25));
     }
 
 }

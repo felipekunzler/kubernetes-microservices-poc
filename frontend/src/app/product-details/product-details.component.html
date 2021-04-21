@@ -1,9 +1,40 @@
-<p>product-details works!</p>
-<div *ngIf='product$ | async; let product'>
-  {{product.id}}
-  {{product.description}}
-  {{product.name}}
-  {{product.image}}
-  {{product.price}}
-  <button (click)='cartService.addToCart(product.id)'>Add to cart</button>
-</div>
+<main role="main">
+  <div class="py-5 bg-light">
+    <div class="container">
+      <section class="mb-5">
+        <div class="row" *ngIf='product$ | async; let product'>
+
+          <div class="col-md-6 mb-4 mb-md-0">
+            <div class="card box-shadow">
+              <img src="https://cdn.shopify.com/s/files/1/0070/7032/files/camera_56f176e3-ad83-4ff8-82d8-d53d71b6e0fe.jpg?v=1527089512">
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h5>{{product.name}}</h5>
+            <p class="mb-2 text-muted text-uppercase small">#{{product.id}}</p>
+            <p><span class="mr-1"><strong>${{product.price}}</strong></span></p>
+            <p class="pt-1">{{product.description}}</p>
+            <hr>
+            <div class="table-responsive mb-2">
+              <div>
+                <button (click)='updateQuantity(quantity - 1)'
+                        class="btn-quantity btn btn-primary waves-effect waves-light">-
+                </button>
+                <input class="input-quantity quantity" value="{{quantity}}" disabled>
+                <button (click)='updateQuantity(quantity + 1)'
+                        class="btn-quantity btn btn-primary waves-effect waves-light">+
+                </button>
+              </div>
+            </div>
+            <button (click)='cartService.addToCart(product.id!, quantity)'
+                    class="btn btn-primary btn-block waves-effect waves-light add-to-cart">
+              Add to cart
+            </button>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </div>
+</main>

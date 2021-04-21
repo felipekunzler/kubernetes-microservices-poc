@@ -14,16 +14,18 @@
               <div *ngFor='let entry of cart.entries; let last = last'>
                 <div class="row mb-4">
                   <div class="col-md-5 col-lg-3 col-xl-3">
-                    <img class="img-fluid"
-                         src="https://cdn.shopify.com/s/files/1/0070/7032/files/camera_56f176e3-ad83-4ff8-82d8-d53d71b6e0fe.jpg?v=1527089512">
+                    <a routerLink='/product/{{entry.product?.id}}'>
+                      <img class="img-fluid"
+                           src="https://cdn.shopify.com/s/files/1/0070/7032/files/camera_56f176e3-ad83-4ff8-82d8-d53d71b6e0fe.jpg?v=1527089512">
+                    </a>
                   </div>
                   <div class="col-md-7 col-lg-9 col-xl-9">
                     <div>
                       <div class="d-flex justify-content-between">
                         <div>
-                          <h5>{{entry.product?.name}} - {{entry.product?.id}}</h5>
-                          <p class="text-muted text-uppercase small">{{entry.product?.description}}</p>
-                          <p class="text-muted text-uppercase small">Item Price ${{entry.product?.price}}</p>
+                          <h5>{{entry.product?.name}}</h5>
+                          <p class="text-muted small code-p"># {{entry.product?.id}}</p>
+                          <p class="text-muted small">Price ${{entry.product?.price}}</p>
                         </div>
                         <div>
                           <button (click)="updateQuantity(entry.id, entry.quantity - 1)"
@@ -79,7 +81,7 @@
               </ul>
 
               <button (click)='cartService.placeOrder()' class="btn btn-primary btn-block waves-effect waves-light">
-                Place Order
+                Place order
               </button>
 
             </div>
