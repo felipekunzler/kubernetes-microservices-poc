@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/streadway/amqp"
+	"github.com/nats-io/nats.go"
 	"io/ioutil"
 	"math"
 	"net/http"
@@ -172,28 +172,20 @@ func (h *handler) placeOrder(echoContext echo.Context) error {
 		return err
 	}
 
-	conn, err := amqp.Dial(rabbitmqUrl)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	ch, err := conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer ch.Close()
-
-	q, err := ch.QueueDeclare("placeOrder", false, false, false, false, nil)
+	nc, err := nats.Connect(natsServerUrl)
 	if err != nil {
 		return err
 	}
 
-	err = ch.Publish("", q.Name, false, false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        []byte(result),
-		})
+	err = nc.Publish("placeOrder", []byte(result))
+	if err != nil {
+		return err
+	}
+
+	err = nc.Drain()
+	if err != nil {
+		return err
+	}
 
 	return echoContext.JSON(http.StatusOK, c)
 }

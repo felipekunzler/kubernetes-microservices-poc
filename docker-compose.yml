@@ -13,18 +13,18 @@ services:
     environment:
       - REDIS_URL=redis:6379
       - PRODUCT_SERVICE_URL=http://product:8080
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - NATS_URL=nats://nats:4222
 
   redis:
     image: redis
     ports:
       - "6379:6379"
 
-  rabbitmq:
-    image: rabbitmq:3-management
+  nats:
+    image: nats
     ports:
-      - "15672:15672" # management ui
-      - "5672:5672" # server
+      - "4222:4222"
+      - "8222:8222"
 
   frontend:
     build: ./frontend
