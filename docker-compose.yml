@@ -1,13 +1,11 @@
 services:
   product:
     build: ./product
-    image: k8s-poc_product
     ports:
       - "8080:8080"
 
   cart:
     build: ./cart
-    image: k8s-poc_cart
     ports:
       - "1323:1323"
     environment:
@@ -28,6 +26,12 @@ services:
 
   frontend:
     build: ./frontend
-    image: k8s-poc_frontend
     ports:
       - "4200:4200"
+
+  order:
+    build: ./order
+    depends_on:
+      - nats
+    environment:
+      - NATS_URL=nats://nats:4222
