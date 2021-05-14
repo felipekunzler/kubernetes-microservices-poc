@@ -16,3 +16,8 @@
 
 ## Running locally with Kubernetes
 * Coming soon
+
+## Storefront screenshots
+![](https://user-images.githubusercontent.com/9336586/120122720-d5b02e80-c180-11eb-9b1c-446a26c4b58a.png)
+![](https://user-images.githubusercontent.com/9336586/120122722-d8128880-c180-11eb-8175-97d2e17201ed.png)
+![](https://user-images.githubusercontent.com/9336586/120122723-d943b580-c180-11eb-835d-4011097b7344.png)
