@@ -12,7 +12,7 @@
 
 ## Running locally with Docker
 * Run all services locally in Docker with `docker-compose up --build`
-* Access the frontend at http://localhost:4200
+* Access the frontend at http://localhost:80
 
 ## Running locally with Kubernetes
 * Coming soon

@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 RUN mvn clean package -Dmaven.test.skip=true
 
-FROM adoptopenjdk:16-jre-openj9 as deploy
+FROM adoptopenjdk:16-jre
 
 RUN mkdir /app
 COPY --from=build /app/target/*.jar /app/app.jar

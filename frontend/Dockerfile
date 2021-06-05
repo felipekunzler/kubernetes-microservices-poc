@@ -1,7 +1,8 @@
-FROM node:12.21.0
+FROM node:12.21.0 as build
 WORKDIR /app
-
 COPY . /app/
 RUN npm install
+RUN npm run build
 
-CMD npm run ng serve -- --host 0.0.0.0 -c docker
+FROM nginx
+COPY --from=build /app/dist/store /usr/share/nginx/html

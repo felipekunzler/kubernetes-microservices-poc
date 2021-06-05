@@ -3,7 +3,7 @@ COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle build --no-daemon
 
-FROM adoptopenjdk/openjdk11:latest
+FROM adoptopenjdk:11-jre
 
 RUN mkdir /app
 

@@ -4,11 +4,13 @@ import com.k8s.poc.product.model.Product;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import javax.annotation.Resource;
 
 @SpringBootApplication
-public class ProductApplication implements CommandLineRunner {
+public class ProductApplication implements CommandLineRunner, WebMvcConfigurer {
 
     @Resource
     private ProductRepository productRepository;
@@ -27,6 +29,11 @@ public class ProductApplication implements CommandLineRunner {
         productRepository.save(new Product("1003", "Monitor", MOCK_DESCRIPTION, "https://google.com", 53.44));
         productRepository.save(new Product("1004", "Keyboard", MOCK_DESCRIPTION, "https://google.com", 80.31));
         productRepository.save(new Product("1005", "Mouse", MOCK_DESCRIPTION, "https://google.com", 40.25));
+    }
+
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("GET", "POST");
     }
 
 }
