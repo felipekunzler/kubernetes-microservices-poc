@@ -1,11 +1,13 @@
 services:
   product:
     build: ./product
+    image: felipekunzler/poc_product
     ports:
       - "8080:8080"
 
   cart:
     build: ./cart
+    image: felipekunzler/poc_cart
     ports:
       - "1323:1323"
     environment:
@@ -26,11 +28,13 @@ services:
 
   frontend:
     build: ./frontend
+    image: felipekunzler/poc_frontend
     ports:
       - "80:80"
 
   order:
     build: ./order
+    image: felipekunzler/poc_order
     depends_on:
       - nats
     environment:
