@@ -14,13 +14,21 @@
 * Access the frontend at http://localhost:80
 
 ## Running locally with Kubernetes
-* Create the cluster with `k3d`
+* Create a kubernetes cluster with `k3d`. Ports 80 and 443 will be accessible from the host machine and disable traefik as we'll use nginx as our ingress
 ```
 k3d cluster create k8s-poc \
 -p 80:80@loadbalancer \
 -p 443:443@loadbalancer \
 --k3s-server-arg "--no-deploy=traefik"
 ```
+* Deploy all services with `kubectl apply -f deployment/kubernetes-vanilla/`
+* Pods startup can be watched with `watch kubectl get pods -A`
+* Access the frontend at http://localhost:80
+* Logs can be checked with `kubectl logs -l 'app in (product, frontend, order, cart)' -f`
+
+## Running locally with Kubernetes and Istio
+* Coming soon
+
 
 ## Storefront screenshots
 ![](https://user-images.githubusercontent.com/9336586/120122720-d5b02e80-c180-11eb-9b1c-446a26c4b58a.png)
