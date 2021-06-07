@@ -28,7 +28,8 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/endpoints"
             ],
             "styles": [
               "src/styles.scss"
@@ -83,8 +84,7 @@
               "browserTarget": "store:build:production"
             },
             "docker": {
-              "browserTarget": "store:build",
-              "proxyConfig": "src/proxy.conf.docker.json"
+              "browserTarget": "store:build"
             }
           }
         },
@@ -103,7 +103,8 @@
             "karmaConfig": "karma.conf.js",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/endpoints"
             ],
             "styles": [
               "src/styles.scss"

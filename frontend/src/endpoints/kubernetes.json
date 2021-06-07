@@ -1,0 +1,4 @@
+{
+  "cartServiceUrl": "http://localhost/api-cart",
+  "productServiceUrl": "http://localhost/api-product/api"
+}

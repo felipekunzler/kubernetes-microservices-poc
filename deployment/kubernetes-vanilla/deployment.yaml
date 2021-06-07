@@ -20,6 +20,9 @@ spec:
           image: felipekunzler/poc_frontend
           ports:
             - containerPort: 80
+          env:
+            - name: DEPLOY_ENV
+              value: kubernetes
 
 ---
 apiVersion: v1

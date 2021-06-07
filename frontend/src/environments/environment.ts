@@ -4,11 +4,6 @@
 
 export const environment = {
   production: false,
-  cartServiceUrl: 'http://localhost/api-cart',
-  productServiceUrl: 'http://localhost/api-product/api',
-  // TODO: Configurable for docker as well
-  // cartServiceUrl: 'http://localhost:1323',
-  // productServiceUrl: 'http://localhost:8080/api',
 };
 
 /*

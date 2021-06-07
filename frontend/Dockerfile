@@ -7,3 +7,4 @@ RUN npm run build
 FROM nginx
 COPY --from=build /app/dist/store /usr/share/nginx/html
 COPY ./angular-nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./docker-entrypoint.sh /docker-entrypoint.d/
