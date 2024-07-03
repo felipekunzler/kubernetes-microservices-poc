@@ -1,9 +1,9 @@
-FROM gradle:6.8.3-jdk11 AS build
+FROM gradle:8.8.0-jdk21 AS build
 COPY --chown=gradle:gradle . /home/gradle/src
 WORKDIR /home/gradle/src
 RUN gradle build --no-daemon
 
-FROM adoptopenjdk:11-jre
+FROM eclipse-temurin:21
 
 RUN mkdir /app
 

@@ -1,5 +1,5 @@
 ## Product Service
-* Requires Java 11
+* Requires Java 21
 * Run locally with `./gradlew bootRun`
 
 ### Endpoints

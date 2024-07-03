@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 @SpringBootApplication
 public class ProductApplication implements CommandLineRunner, WebMvcConfigurer {
