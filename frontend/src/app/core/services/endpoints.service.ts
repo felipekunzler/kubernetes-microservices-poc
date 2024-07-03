@@ -21,6 +21,9 @@ export class EndpointsService {
     }
 
     this.endpoints = await this.http.get<Endpoints>('./endpoints/endpoints.json').toPromise();
+    if (!this.endpoints) {
+      throw new Error('Failed to load endpoints');
+    }
     return this.endpoints;
   }
 
