@@ -5,8 +5,8 @@
 
 ## Microservices
 * [Cart service](./cart/) written in Go and Redis
-* [Product service](./product/) written in Java 11, Spring Boot and PostgreSQL
-* [Frontend](./frontend/) written in Angular
+* [Product service](./product/) written in Java 21, Spring Boot and PostgreSQL
+* [Frontend](./frontend/) written in Angular 18
 * [Order service](./order) written in Java 16
 
 ## Running locally with Docker
@@ -19,7 +19,7 @@
 k3d cluster create k8s-poc \
 -p 80:80@loadbalancer \
 -p 443:443@loadbalancer \
---k3s-server-arg "--no-deploy=traefik"
+--k3s-arg "--disable=traefik@server:*"
 ```
 * Deploy all services with `kubectl apply -f deployment/kubernetes-vanilla/`
 * Pods startup can be watched with `watch kubectl get pods -A`
