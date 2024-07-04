@@ -1,6 +1,6 @@
 ## Cart Service
 * Run Redis `docker run --name redis -p 6379:6379 -d redis`
-* Run locally with  `go run main.go`
+* Run locally with  `go run .`
 
 ### Endpoints
 * POST http://localhost:1323/cart
