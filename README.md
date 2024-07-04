@@ -7,7 +7,7 @@
 * [Cart service](./cart/) written in Go and Redis
 * [Product service](./product/) written in Java 21, Spring Boot and PostgreSQL
 * [Frontend](./frontend/) written in Angular 18
-* [Order service](./order) written in Java 16
+* [Order service](./order) written in Java 21
 
 ## Running locally with Docker
 * Run all services locally in Docker with `docker-compose up --build`

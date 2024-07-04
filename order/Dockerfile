@@ -1,10 +1,10 @@
-FROM maven:3-openjdk-16-slim as build
+FROM maven:3.9.8-eclipse-temurin-21 as build
 
 WORKDIR /app
 COPY . .
 RUN mvn clean package -Dmaven.test.skip=true
 
-FROM adoptopenjdk:16-jre
+FROM eclipse-temurin:21
 
 RUN mkdir /app
 COPY --from=build /app/target/*.jar /app/app.jar

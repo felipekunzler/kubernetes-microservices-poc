@@ -8,7 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.core.env.Environment;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 
 @SpringBootApplication
