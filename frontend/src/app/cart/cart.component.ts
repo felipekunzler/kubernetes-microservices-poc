@@ -5,9 +5,10 @@ import {CartService} from '../core/services/cart.service';
 import {tap} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-cart',
-  templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.scss']
+    selector: 'app-cart',
+    templateUrl: './cart.component.html',
+    styleUrls: ['./cart.component.scss'],
+    standalone: false
 })
 export class CartComponent implements OnInit {
 

@@ -6,9 +6,10 @@ import {ActivatedRoute} from '@angular/router';
 import {CartService} from '../core/services/cart.service';
 
 @Component({
-  selector: 'app-product-details',
-  templateUrl: './product-details.component.html',
-  styleUrls: ['./product-details.component.scss']
+    selector: 'app-product-details',
+    templateUrl: './product-details.component.html',
+    styleUrls: ['./product-details.component.scss'],
+    standalone: false
 })
 export class ProductDetailsComponent implements OnInit {
 
