@@ -21,14 +21,27 @@ k3d cluster create k8s-poc \
 -p 443:443@loadbalancer \
 --k3s-arg "--disable=traefik@server:*"
 ```
-* Deploy all services with `kubectl apply -f deployment/kubernetes-vanilla/`
+* Deploy all services ang nginx ingress with `kubectl apply -f deployment/ingress-nginx -f deployment/deployment.yaml`
 * Pods startup can be watched with `watch kubectl get pods -A`
 * Access the frontend at http://localhost:80
 * Logs can be checked with `kubectl logs -l 'app in (product, frontend, order, cart)' -f`
 
 ## Running locally with Kubernetes and Istio
-* Coming soon
-
+* Install istioctl with `brew install istioctl`
+* Create the kubernetes cluster
+```
+k3d cluster create k8s-istio \
+-p 80:80@loadbalancer \
+-p 443:443@loadbalancer \
+--k3s-arg "--disable=traefik@server:*"
+```
+* Install Istio with `istioctl install`
+* Enable sidecar proxying with `kubectl label namespace default istio-injection=enabled`
+* Deploy all services with `kubectl apply -f deployment/istio -f deployment/deployment.yaml`
+* Access the frontend at http://localhost:80
+* Install Kiali `kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/kiali.yaml`
+* Install Prometeus `kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.27/samples/addons/prometheus.yaml`
+* Access Kiali dashboard with `istioctl dashboard kiali` 
 
 ## Storefront screenshots
 ![](https://user-images.githubusercontent.com/9336586/120122720-d5b02e80-c180-11eb-9b1c-446a26c4b58a.png)

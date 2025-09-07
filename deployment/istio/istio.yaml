@@ -1,0 +1,59 @@
+apiVersion: networking.istio.io/v1
+kind: Gateway
+metadata:
+  name: poc-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*"
+---
+apiVersion: networking.istio.io/v1
+kind: VirtualService
+metadata:
+  name: poc
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - poc-gateway
+  http:
+    - match:
+        - uri:
+            prefix: "/api-product/"
+        - uri:
+            exact: "/api-product"
+      rewrite:
+        uri: "/"
+      route:
+        - destination:
+            host: product
+            port:
+              number: 8080
+
+    - match:
+        - uri:
+            prefix: "/api-cart/"
+        - uri:
+            exact: "/api-cart"
+      rewrite:
+        uri: "/"
+      route:
+        - destination:
+            host: cart
+            port:
+              number: 1323
+
+    - match:
+        - uri:
+            regex: "^/(.*)"
+      route:
+        - destination:
+            host: frontend
+            port:
+              number: 80
