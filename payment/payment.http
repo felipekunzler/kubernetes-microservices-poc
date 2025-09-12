@@ -1,0 +1,35 @@
+### Payment Service HTTP tests
+### Environment: dev (use IDE dropdown to choose)
+# @name tokenize
+POST {{baseUrl}}/payment/tokenize
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cardNumber": "4111111111111111",
+  "cardExpiration": "12/28",
+  "cvv": "123",
+  "cardHolder": "JOHN DOE"
+}
+
+###
+# @name authorize
+POST {{baseUrl}}/payment/authorize
+Content-Type: application/json
+Accept: application/json
+
+{
+  "amount": 4999,
+  "cardToken": "D9F383"
+}
+
+###
+# @name capture
+POST {{baseUrl}}/payment/capture
+Content-Type: application/json
+Accept: application/json
+
+{
+  "amount": 4999,
+  "authorizationCode": "A1B2C3"
+}
